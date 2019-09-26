@@ -1,5 +1,8 @@
 <img src="https://github.com/dusty-nv/jetson-inference/raw/master/docs/images/deep-vision-header.jpg">
 
+# Build
+cmake .. -DTENSORT_ROOT=${TENSORRT}  -DOPENCV_ROOT={OPENCV_ROOT}
+
 # Deploying Deep Learning
 Welcome to our training guide for inference and realtime [DNN vision](#api-reference) library for NVIDIA **[Jetson Nano/TX1/TX2/Xavier](http://www.nvidia.com/object/embedded-systems.html)**.
 

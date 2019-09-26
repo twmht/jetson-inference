@@ -36,16 +36,19 @@ namespace nvinfer1 { class IInt8Calibrator; }
 #include <sstream>
 #include <math.h>
 
+// using nvinfer1::DimsCHW;
+using nvinfer1::Dims3;
+
 
 #if NV_TENSORRT_MAJOR > 1
-typedef nvinfer1::DimsCHW Dims3;
+// typedef nvinfer1::DimsCHW Dims3;
 
 #define DIMS_C(x) x.d[0]
 #define DIMS_H(x) x.d[1]
 #define DIMS_W(x) x.d[2]
 
 #else
-typedef nvinfer1::Dims3 Dims3; 
+// typedef nvinfer1::Dims3 Dims3; 
 
 #define DIMS_C(x) x.c
 #define DIMS_H(x) x.h

@@ -14,3 +14,6 @@ if(CUDA_VERSION_MAJOR GREATER 9)
 
 	add_subdirectory(superres-console)
 endif()
+
+add_subdirectory(faceboxes)
+add_subdirectory(retinaface)
