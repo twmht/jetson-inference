@@ -17,3 +17,5 @@ endif()
 
 add_subdirectory(faceboxes)
 add_subdirectory(retinaface)
+add_subdirectory(faceid)
+add_subdirectory(face_multitask)
