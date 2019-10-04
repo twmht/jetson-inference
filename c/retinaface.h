@@ -165,7 +165,7 @@ public:
 	static std::shared_ptr<retinaface> Create( const char* prototxt_path, const char* model_path, 
 						 uint32_t maxBatchSize=1, 
 						 precisionType precision=TYPE_FASTEST,
-				   		 deviceType device=DEVICE_GPU, bool allowGPUFallback=true);
+				   		 deviceType device=DEVICE_GPU, bool allowGPUFallback=true, nvinfer1::IInt8Calibrator* calibrator=NULL);
 private:
     const float mMeans[3] = {0, 0, 0};
     const char *m_input_name = "data";
@@ -179,7 +179,7 @@ private:
     float cls_threshold = 0.8;
     float nms_threshold = 0.4;
     std::vector<AnchorGenerator> ac_;
-	void* inferenceBuffers[10];
+    void* inferenceBuffers[10];
     int anchor_num_;
 };
 

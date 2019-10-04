@@ -417,7 +417,7 @@ bool tensorNet::ProfileModel(const std::string& deployFile,			   // name for caf
 	nvinfer1::IBuilder* builder = CREATE_INFER_BUILDER(gLogger);
 	nvinfer1::INetworkDefinition* network = builder->createNetwork();
 
-	builder->setDebugSync(mEnableDebug);
+  builder->setDebugSync(mEnableDebug);
 	builder->setMinFindIterations(3);	// allow time for TX1 GPU to spin up
 	builder->setAverageFindIterations(2);
 
@@ -553,7 +553,7 @@ bool tensorNet::ProfileModel(const std::string& deployFile,			   // name for caf
 	if( precision == TYPE_INT8 )
 	{
 	#if NV_TENSORRT_MAJOR >= 4
-		builder->setInt8Mode(true);
+    builder->setInt8Mode(true);
 		//builder->setFp16Mode(true);		// TODO:  experiment for benefits of both INT8/FP16
 		
 		if( !calibrator )

@@ -25,6 +25,7 @@
 
 #include "commandLine.h"
 #include "cudaMappedMemory.h"
+#include "EntropyCalibrator.h"
 
 
 int main( int argc, char** argv )
@@ -34,7 +35,15 @@ int main( int argc, char** argv )
 	 * create detection network
 	 */
 
-    std::shared_ptr<retinaface> net = retinaface::Create("/home/alec.tu/RetinaFace-Cpp/convert_models/mnet/mnet_rt.prototxt", "/home/alec.tu/RetinaFace-Cpp/convert_models/mnet/mnet.caffemodel");
+  std::string table_name = "/home/acer/trt_models/CalibrationTableRetinaface";
+
+  std::unique_ptr<nvinfer1::IInt8Calibrator> calibrator;
+  calibrator.reset(new Int8EntropyCalibrator2(table_name));
+
+    // std::shared_ptr<retinaface> net = retinaface::Create("/home/alec.tu/RetinaFace-Cpp/convert_models/mnet/mnet_rt.prototxt", "/home/alec.tu/RetinaFace-Cpp/convert_models/mnet/mnet.caffemodel");
+  const int batchSize = 1;
+  std::shared_ptr<retinaface> net = retinaface::Create("/home/acer/trt_models/mnet_rt.prototxt", "/home/acer/trt_models/mnet.caffemodel", batchSize, TYPE_FASTEST, DEVICE_GPU, true, calibrator.get());
+  calibrator.release();
 
 	if( !net )
 	{
@@ -52,7 +61,7 @@ int main( int argc, char** argv )
     float* imgCUDA   = NULL;
     int    imgWidth  = 300;
     int    imgHeight = 300;
-    const char * imgFilename = "/home/alec.tu/mnn_demo/app/models/3.jpg";
+    const char * imgFilename = "/home/acer/mnn_demo/app/models/3.jpg";
 
     cv::Mat ori_img = cv::imread(imgFilename);
     float w_scale = (float)ori_img.cols / imgWidth;

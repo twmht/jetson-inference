@@ -1,5 +1,6 @@
 #include "retinaface.h"
 #include "imageNet.cuh"
+#include "loadImage.h"
 
 void nms_cpu(std::vector<Anchor>& boxes, float threshold, std::vector<Anchor>& filterOutBoxes) {
     filterOutBoxes.clear();
@@ -235,10 +236,10 @@ retinaface::~retinaface()
 std::shared_ptr<retinaface> retinaface::Create( const char* prototxt_path, const char* model_path, 
                  uint32_t maxBatchSize,
                  precisionType precision,
-                 deviceType device, bool allowGPUFallback) {
+                 deviceType device, bool allowGPUFallback, nvinfer1::IInt8Calibrator* calibrator) {
     std::shared_ptr<retinaface> net = std::make_shared<retinaface>();
     // net->init(prototxt_path, model_path)
-    net->LoadNetwork(prototxt_path ,model_path, NULL, net->m_input_name, net->m_output_names, maxBatchSize, precision, device, allowGPUFallback);
+    net->LoadNetwork(prototxt_path ,model_path, NULL, net->m_input_name, net->m_output_names, maxBatchSize, precision, device, allowGPUFallback, calibrator);
     return net;
 }
 
