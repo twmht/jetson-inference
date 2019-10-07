@@ -1,6 +1,6 @@
 [submodule "utils"]
 	path = utils
-	url = https://github.com/dusty-nv/jetson-utils
+	url = http://10.36.169.170/alec.tu/jetson-utils
 	branch = master
 [submodule "python/training/imagenet"]
 	path = python/training/imagenet
