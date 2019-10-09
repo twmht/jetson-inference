@@ -5,7 +5,8 @@
 #include "tensorNet.h"
 #include <memory>
 #include <vector>
-#include <opencv2/opencv.hpp>
+#include <map>
+#include <algorithm>
 #include <glog/logging.h>
 
 using std::vector;
@@ -21,12 +22,12 @@ public:
 	  std::vector<float> RATIOS;
 	  int BASE_SIZE;
 
-      AnchorCfg() {}
-      ~AnchorCfg() {}
+    AnchorCfg() {}
+    ~AnchorCfg() {}
 	  AnchorCfg(const std::vector<float> s, const std::vector<float> r, int size) {
-			  SCALES = s;
-			  RATIOS = r;
-			  BASE_SIZE = size;
+      SCALES = s;
+      RATIOS = r;
+      BASE_SIZE = size;
 	  }
 };
 
@@ -46,12 +47,17 @@ public:
     float operator[](int i) const {
         return val[i];
     }
-
     float val[4];
+};
 
-    void print() {
-        // printf("rect %f %f %f %f\n", val[0], val[1], val[2], val[3]);
+class CPointf {
+public:
+    CPointf(float x, float y): x(x), y(y) {
     }
+    CPointf() = default;
+
+    float x;
+    float y;
 };
 
 class Anchor {
@@ -62,56 +68,30 @@ public:
 	~Anchor() {
 	}
 
-    bool operator<(const Anchor &t) const {
-        return score < t.score;
-    }
+  bool operator<(const Anchor &t) const {
+      return score < t.score;
+  }
 
-    bool operator>(const Anchor &t) const {
-        return score > t.score;
-    }
+  bool operator>(const Anchor &t) const {
+      return score > t.score;
+  }
 
-    float& operator[](int i) {
-        assert(0 <= i && i <= 4);
+  float& operator[](int i) {
+      return finalbox[i];
 
-        if (i == 0) 
-            return finalbox.x;
-        if (i == 1) 
-            return finalbox.y;
-        if (i == 2) 
-            return finalbox.width;
-        if (i == 3) 
-            return finalbox.height;
-    }
+  }
 
-    float operator[](int i) const {
-        assert(0 <= i && i <= 4);
+  float operator[](int i) const {
+      return finalbox[i];
+  }
 
-        if (i == 0) 
-            return finalbox.x;
-        if (i == 1) 
-            return finalbox.y;
-        if (i == 2) 
-            return finalbox.width;
-        if (i == 3) 
-            return finalbox.height;
-    }
-
-    cv::Rect_< float > anchor; // x1,y1,x2,y2
+  float anchor[4]; // x1,y1,x2,y2
 	float reg[4]; // offset reg
-    cv::Point center; // anchor feat center
+  // cv::Point center; // anchor feat center
 	float score; // cls score
-    std::vector<cv::Point2f> pts; // pred pts
-
-    cv::Rect_< float > finalbox; // final box res
-
-    void print() {
-        // printf("finalbox %f %f %f %f, score %f\n", finalbox.x, finalbox.y, finalbox.width, finalbox.height, score);
-        // printf("landmarks ");
-        // for (int i = 0; i < pts.size(); ++i) {
-            // printf("%f %f, ", pts[i].x, pts[i].y);
-        // }
-        // printf("\n");
-    }
+  std::vector<CPointf> pts; // pred pts
+  // final box res
+  float finalbox[4];
 };
 
 class AnchorGenerator {
@@ -134,9 +114,9 @@ private:
 
     void _scale_enum(const std::vector<CRect2f>& ratio_anchor, const std::vector<float>& scales, std::vector<CRect2f>& scale_anchors);
 
-    void bbox_pred(const CRect2f& anchor, const CRect2f& delta, cv::Rect_< float >& box);
+    void bbox_pred(const CRect2f& anchor, const CRect2f& delta, float* box);
 
-    void landmark_pred(const CRect2f anchor, const std::vector<cv::Point2f>& delta, std::vector<cv::Point2f>& pts);
+    void landmark_pred(const CRect2f anchor, const std::vector<CPointf>& delta, std::vector<CPointf>& pts);
 
 	std::vector<std::vector<Anchor>> anchor_planes; // corrspont to channels
 

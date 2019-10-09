@@ -140,7 +140,11 @@ add_subdirectory(docs)
 add_subdirectory(examples)
 add_subdirectory(tools)
 add_subdirectory(utils)
-add_subdirectory(python)
+# add_subdirectory(python)
+SET(PY_SOURCE_DIR "python/bindings_v2")
+include_directories(pybind11)
+add_subdirectory(pybind11)
+pybind11_add_module(pyinference ${PY_SOURCE_DIR}/init.cpp ${PY_SOURCE_DIR}/tensornet.cpp ${PY_SOURCE_DIR}/retinaface.cpp)
 
 
 # set linker options

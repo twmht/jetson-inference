@@ -26,6 +26,7 @@
 #include "commandLine.h"
 #include "cudaMappedMemory.h"
 #include "EntropyCalibrator.h"
+#include <opencv2/opencv.hpp>
 
 
 int main( int argc, char** argv )
@@ -51,7 +52,7 @@ int main( int argc, char** argv )
 		return 0;
 	}
 
-    // net->EnableLayerProfiler();
+    net->EnableLayerProfiler();
 	
 	
 	/*
@@ -90,10 +91,10 @@ int main( int argc, char** argv )
 
     for(int i = 0; i < finalBbox.size(); i ++)
     {
-        finalBbox[i].finalbox.x *= w_scale;
-        finalBbox[i].finalbox.y *= h_scale;
-        finalBbox[i].finalbox.width *= w_scale;
-        finalBbox[i].finalbox.height *= h_scale;
+        finalBbox[i].finalbox[0] *= w_scale;
+        finalBbox[i].finalbox[1] *= h_scale;
+        finalBbox[i].finalbox[2] *= w_scale;
+        finalBbox[i].finalbox[3] *= h_scale;
 
         for (int j = 0; j < finalBbox[i].pts.size(); ++j) {
             finalBbox[i].pts[j].x *= w_scale;
@@ -103,7 +104,7 @@ int main( int argc, char** argv )
 
     for(int i = 0; i < finalBbox.size(); i ++)
     {
-        cv::rectangle (ori_img, cv::Point((int)finalBbox[i].finalbox.x, (int)finalBbox[i].finalbox.y), cv::Point((int)finalBbox[i].finalbox.width, (int)finalBbox[i].finalbox.height), cv::Scalar(0, 255, 255), 2, 8, 0);
+        cv::rectangle (ori_img, cv::Point((int)finalBbox[i].finalbox[0], (int)finalBbox[i].finalbox[1]), cv::Point((int)finalBbox[i].finalbox[2], (int)finalBbox[i].finalbox[3]), cv::Scalar(0, 255, 255), 2, 8, 0);
         for (int j = 0; j < finalBbox[i].pts.size(); ++j) {
             cv::circle(ori_img, cv::Point((int)finalBbox[i].pts[j].x, (int)finalBbox[i].pts[j].y), 1, cv::Scalar(225, 0, 225), 2, 8);
         }

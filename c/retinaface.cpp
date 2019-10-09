@@ -59,7 +59,7 @@ int AnchorGenerator::Init(int stride, const AnchorCfg& cfg, bool dense_anchor) {
 
 	// save as x1,y1,x2,y2
 	if (dense_anchor) {
-		assert(stride % 2 == 0);
+		CHECK_EQ(stride % 2, 0);
 		int num = preset_anchors.size();
 		for (int i = 0; i < num; ++i) {
 			CRect2f anchor = preset_anchors[i];
@@ -73,9 +73,9 @@ int AnchorGenerator::Init(int stride, const AnchorCfg& cfg, bool dense_anchor) {
     anchor_stride = stride;
 
 	anchor_num = preset_anchors.size();
-    for (int i = 0; i < anchor_num; ++i) {
-        preset_anchors[i].print();
-    }
+    // for (int i = 0; i < anchor_num; ++i) {
+        // preset_anchors[i].print();
+    // }
 	return anchor_num;
 }
 
@@ -104,16 +104,17 @@ int AnchorGenerator::FilterAnchor(const float* cls_data,  const float* reg_data,
                             reg_data[(a * 4 + 3) * dim + id]);
 
                     Anchor res;
-                    res.anchor = cv::Rect_< float >(box[0], box[1], box[2], box[3]);
+                    res.anchor[0] = box[0];
+                    res.anchor[1] = box[1];
+                    res.anchor[2] = box[2];
+                    res.anchor[3] = box[3];
                     bbox_pred(box, delta, res.finalbox);
                     // printf("bbox pred\n");
                     res.score = cls_data[(anchor_num + a) * dim + id];
-                    res.center = cv::Point(j,i);
 
-                    // printf("center %d %d\n", j, i);
 
                     // if (1) {
-                    std::vector<cv::Point2f> pts_delta(5);
+                    std::vector<CPointf> pts_delta(5);
                     for (int p = 0; p < 5; ++p) {
                         pts_delta[p].x = pts_data[(a * 5 * 2 + p * 2) * dim + id];
                         pts_delta[p].y = pts_data[(a * 5 * 2 + p * 2 + 1) * dim + id];
@@ -173,7 +174,7 @@ void AnchorGenerator::_scale_enum(const std::vector<CRect2f>& ratio_anchor, cons
 
 }
 
-void AnchorGenerator::bbox_pred(const CRect2f& anchor, const CRect2f& delta, cv::Rect_< float >& box) {
+void AnchorGenerator::bbox_pred(const CRect2f& anchor, const CRect2f& delta, float* box) {
 	float w = anchor[2] - anchor[0] + 1;	
 	float h = anchor[3] - anchor[1] + 1;
 	float x_ctr = anchor[0] + 0.5 * (w - 1);
@@ -189,13 +190,13 @@ void AnchorGenerator::bbox_pred(const CRect2f& anchor, const CRect2f& delta, cv:
     float pred_w = std::exp(dw) * w; 
     float pred_h = std::exp(dh) * h;
 
-    box = cv::Rect_< float >(pred_ctr_x - 0.5 * (pred_w - 1.0),
-            pred_ctr_y - 0.5 * (pred_h - 1.0),
-            pred_ctr_x + 0.5 * (pred_w - 1.0),
-            pred_ctr_y + 0.5 * (pred_h - 1.0));
+    box[0] = pred_ctr_x - 0.5 * (pred_w - 1.0);
+    box[1] = pred_ctr_y - 0.5 * (pred_h - 1.0);
+    box[2] = pred_ctr_x + 0.5 * (pred_w - 1.0);
+    box[3] = pred_ctr_y + 0.5 * (pred_h - 1.0);
 }
 
-void AnchorGenerator::landmark_pred(const CRect2f anchor, const std::vector<cv::Point2f>& delta, std::vector<cv::Point2f>& pts) {
+void AnchorGenerator::landmark_pred(const CRect2f anchor, const std::vector<CPointf>& delta, std::vector<CPointf>& pts) {
 	float w = anchor[2] - anchor[0] + 1;	
 	float h = anchor[3] - anchor[1] + 1;
 	float x_ctr = anchor[0] + 0.5 * (w - 1);
@@ -257,13 +258,13 @@ int retinaface::Detect( float* input, uint32_t width, uint32_t height, std::vect
 		const int outputIndex = mEngine->getBindingIndex(mOutputs[i].name.c_str());
         inferenceBuffers[outputIndex] = mOutputs[i].CUDA;
     }
-	// PROFILER_BEGIN(PROFILER_NETWORK);
+  PROFILER_BEGIN(PROFILER_NETWORK);
 	if( !mContext->execute(1, inferenceBuffers) )
 	{
 		printf(LOG_TRT "detectNet::Detect() -- failed to execute TensorRT context\n");
 		return -1;
 	}
-	// PROFILER_END(PROFILER_NETWORK);
+  PROFILER_END(PROFILER_NETWORK);
 	// process with TensorRT
 
     std::vector<Anchor> proposals;
